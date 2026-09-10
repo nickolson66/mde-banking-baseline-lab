@@ -1,1 +1,18 @@
-
+// Detection: ShieldCrash Arbitrary File Read Abuse via MsMpEng.exe
+// MITRE ATT&CK: T1003.002 (OS Credential Dumping: Security Account Manager)
+DeviceFileEvents
+| where Timestamp > ago(24h)
+| where InitiatingProcessFileName =~ "MsMpEng.exe"
+| where ActionType in ("FileRead", "FileAccessed", "FileOpen")
+| where FolderPath has @"C:\Windows\System32\config" 
+    and FileName in~ ("SAM", "SECURITY", "SYSTEM")
+| project 
+    Timestamp, 
+    DeviceName, 
+    InitiatingProcessFileName, 
+    ActionType, 
+    FolderPath, 
+    FileName, 
+    RequestAccountName, 
+    ReportId
+| order by Timestamp desc
