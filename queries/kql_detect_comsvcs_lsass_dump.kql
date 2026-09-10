@@ -1,1 +1,17 @@
-
+// Detection: Living-off-the-Land LSASS Memory Dumping via comsvcs.dll
+// MITRE ATT&CK: T1003.001 (OS Credential Dumping: LSASS Memory)
+DeviceProcessEvents
+| where Timestamp > ago(24h)
+| where FileName =~ "rundll32.exe"
+| where ProcessCommandLine has "comsvcs" 
+    and (ProcessCommandLine has_any ("MiniDump", "#24"))
+| project 
+    Timestamp,
+    DeviceName,
+    AccountName,
+    FileName,
+    ProcessCommandLine,
+    InitiatingProcessFileName,
+    InitiatingProcessCommandLine,
+    ReportId
+| order by Timestamp desc
